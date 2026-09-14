@@ -7,6 +7,7 @@ public int getid() {
     return id;
    
 }
+
 private String name;
 Person(int id,String name){
    

@@ -112,24 +112,36 @@ public class HospitalManagementSystem {
         System.out.println(p);
     }
     private static void scheduleappointment(Scanner sc) {
-          System.out.print("patient id ");
-          int pid=sc.nextInt();
-          System.out.print("doctor id ");
-          int docid=sc.nextInt();
-          System.out.print("date appoint ");
-          String date=sc.next();
-          try {
+    System.out.print("patient id ");
+    int pid = sc.nextInt();
+    System.out.print("doctor id ");
+    int docid = sc.nextInt();
+    System.out.print("date appoint ");
+    String date = sc.next();
+    System.out.print("time appoint (e.g. 10:30AM) ");
+    String time = sc.next();
+    try {
         Patient patient = findpatbyid(pid);
         Doctor doctor = finddocbyid(docid);
 
-        Appointment appointment =
-                new Appointment(patient, doctor, date);
+        checkConflict(docid, date, time);
 
+        Appointment appointment = new Appointment(patient, doctor, date, time);
         appointments.add(appointment);
         System.out.println("Appointment added successfully");
 
-    } catch (PatientNotFoundException | DoctorNotFoundException e) {
+    } catch (PatientNotFoundException | DoctorNotFoundException | AppointmentConflictException e) {
         System.out.println(e.getMessage());
+    }
+}
+
+private static void checkConflict(int docid, String date, String time) {
+    for (Appointment a : appointments) {
+        if (a.getDoctor().getid() == docid && a.getDate().equals(date) && a.getTime().equals(time)) {
+            throw new AppointmentConflictException(
+                "Doctor with ID " + docid + " already has an appointment at " + date + " " + time
+            );
+        }
     }
 }
     private static Doctor finddocbyid(int docid) {
@@ -181,7 +193,7 @@ throw new DoctorNotFoundException(
             
         
             
-         fw.write(a.getPatient().getid() + "," + a.getDoctor().getid() + "," + a.getDate() + "\n");
+         fw.write(a.getPatient().getid() + "," + a.getDoctor().getid() + "," + a.getDate() + "," + a.getTime() + "\n");
             
               
     }
@@ -299,14 +311,13 @@ while((line = br.readLine()) != null) {
      int pid = Integer.parseInt(parts[0]);
      int docid = Integer.parseInt(parts[1]);
     String date = parts[2];
-          
-        Patient patient = findpatbyid(pid);
-        Doctor doctor = finddocbyid(docid);
+    String time = parts[3];
 
-        Appointment appointment =
-                new Appointment(patient, doctor, date);
+    Patient patient = findpatbyid(pid);
+    Doctor doctor = finddocbyid(docid);
 
-        appointments.add(appointment);    
+     Appointment appointment = new Appointment(patient, doctor, date, time);
+     appointments.add(appointment);
 
            
 
